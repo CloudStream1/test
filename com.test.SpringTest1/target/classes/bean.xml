@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xmlns:aop="http://www.springframework.org/schema/aop"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans
+        http://www.springframework.org/schema/beans/spring-beans.xsd
+        http://www.springframework.org/schema/aop
+        http://www.springframework.org/schema/aop/spring-aop.xsd">
+
+    <!-- 配置srping的Ioc,把service对象配置进来-->
+    <bean id="accountService" class="com.itheima.service.impl.AccountServiceImpl"></bean>
+
+
+    <!-- 配置Logger类 -->
+    <bean id="logger" class="com.itheima.utils.Logger" destroy-method="afterprintLog"></bean>
+    <bean id="logger1" class="com.itheima.utils.Logger" destroy-method="beforeprintLog"></bean>
+    <bean id="jdbcTemplate" class="org.springframework.jdbc.core.JdbcTemplate" >
+        <property name="dataSource" ref="datasoure"></property>
+    </bean>
+    <bean id="IAccountService" class="com.itheima.service.impl.AccountServiceImpl" >
+        <property name="jdbcTemplate" ref="jdbcTemplate"></property>
+    </bean>
+    <bean id="datasoure" class="org.springframework.jdbc.datasource.DriverManagerDataSource">
+        <property name="driverClassName" value="com.mysql.jdbc.Driver"></property>
+        <property name="url" value="jdbc:mysql://localhost:3306/test1"></property>
+        <property name="username" value="root"></property>
+        <property name="password" value="123456"></property>
+    </bean>
+    <!--配置AOP-->
+    <aop:config>
+        <!--配置切面 -->
+        <aop:pointcut id="id1" expression="execution(* com.itheima.service.impl.AccountServiceImpl.saveAccount())"/>
+        <aop:aspect id="logAdvice" ref="logger">
+            <!-- 配置通知的类型，并且建立通知方法和切入点方法的关联-->
+            <aop:before method="printLog" pointcut-ref="id1"></aop:before>
+            <aop:after-returning method="afterprintLog" pointcut-ref="id1"></aop:after-returning>
+        </aop:aspect>
+    </aop:config>
+
+</beans>
